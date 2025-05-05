@@ -17,8 +17,11 @@ interface MyDiaryDao {
     @Update
     suspend fun update(myDiary: MyDiary)
 
-    @Query("SELECT * FROM myDiary ORDER BY tanggal DESC")
+    @Query("SELECT * FROM myDiary WHERE visible = 1 ORDER BY tanggal DESC")
     fun getDiary(): Flow<List<MyDiary>>
+
+    @Query("SELECT * FROM myDiary WHERE visible = 0 ORDER BY tanggal DESC")
+    fun getRecycleBin(): Flow<List<MyDiary>>
 
     @Query("SELECT * FROM myDiary WHERE id = :id")
     suspend fun getDiaryById(id: Long): MyDiary?
@@ -26,6 +29,9 @@ interface MyDiaryDao {
     @Query("DELETE FROM myDiary WHERE id = :id")
     suspend fun deleteById(id: Long)
 
-    @Query("UPDATE myDiary SET visible = false WHERE id = :id")
+    @Query("UPDATE myDiary SET visible = 0 WHERE id = :id")
     suspend fun softDeleteById(id: Long)
+
+    @Query("DELETE FROM myDiary WHERE visible = 0")
+    suspend fun deleteAll(): Flow<List<MyDiary>>
 }

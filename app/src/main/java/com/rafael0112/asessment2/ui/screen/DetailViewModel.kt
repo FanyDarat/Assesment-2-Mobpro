@@ -13,8 +13,8 @@ import java.util.Locale
 
 class DetailViewModel(private val dao: MyDiaryDao): ViewModel() {
 
-    private val formatter = SimpleDateFormat("yyyy-MM-dd", Locale.US)
-    private val dayFormatter = SimpleDateFormat("EEEE, dd MMMM yyyy", Locale("in", R.string.bahasa.toString()))
+    private val formatter = SimpleDateFormat("dd MMMM yyyy", Locale.US)
+    private val dayFormatter = SimpleDateFormat("EEEE", Locale( R.string.bahasa.toString(), "ID"))
 
     fun insert(isi: String, mood: String) {
         val catatan = MyDiary(
@@ -48,7 +48,7 @@ class DetailViewModel(private val dao: MyDiaryDao): ViewModel() {
 
     fun delete(id: Long) {
         viewModelScope.launch(Dispatchers.IO) {
-            dao.deleteById(id)
+            dao.softDeleteById(id)
         }
     }
 }

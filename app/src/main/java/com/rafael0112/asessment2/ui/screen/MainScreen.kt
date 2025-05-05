@@ -178,7 +178,7 @@ fun ListItem(myDiary: MyDiary, onClick: () -> Unit) {
             fontWeight = FontWeight.Bold
         )
         Text(
-            text = stringResource(R.string.mood) + myDiary.mood,
+            text = stringResource(R.string.mood, myDiary.mood),
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
         )
@@ -211,7 +211,7 @@ fun GridItem(myDiary: MyDiary, onClick: () -> Unit) {
                 fontWeight = FontWeight.Bold
             )
             Text(
-                text = stringResource(R.string.mood) + myDiary.mood,
+                text = stringResource(R.string.mood, myDiary.mood),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
