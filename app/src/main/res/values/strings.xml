@@ -1,3 +1,17 @@
 <resources>
-    <string name="app_name">Asessment 2</string>
+    <string name="app_name">My Diary</string>
+    <string name="tambah_catatan">Add Diary</string>
+    <string name="list_kosong">List is Empty</string>
+    <string name="mood">Your Mood That Day</string>
+    <string name="grid">Grid View</string>
+    <string name="list">List View</string>
+    <string name="edit_catatan">Edit Diary</string>
+    <string name="judul">Label</string>
+    <string name="isi_catatan">Write Your Activity</string>
+    <string name="lainnya">More</string>
+    <string name="hapus">Delete</string>
+    <string name="invalid">Your input can\'t be Empty</string>
+    <string name="simpan">Save</string>
+    <string name="kembali">Back</string>
+    <string name="recycle">Move To Recycle Bin</string>
 </resources>

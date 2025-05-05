@@ -43,7 +43,7 @@ import com.rafael0112.asessment2.R
 import com.rafael0112.asessment2.ui.theme.Asessment2Theme
 import com.rafael0112.asessment2.util.ViewModelFactory
 
-const val KEY_ID_CATATAN = "idCatatan"
+const val KEY_ID_CATATAN = "idMyDiary"
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -183,7 +183,7 @@ fun DeleteAction(delete: () -> Unit) {
         ) {
             DropdownMenuItem(
                 text = {
-                    Text(text = stringResource(id = R.string.hapus))
+                    Text(text = stringResource(id = R.string.recycle))
                 },
                 onClick = {
                     expanded = false

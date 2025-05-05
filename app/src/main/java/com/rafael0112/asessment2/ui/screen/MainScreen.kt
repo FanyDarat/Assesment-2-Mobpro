@@ -46,7 +46,7 @@ import androidx.navigation.compose.rememberNavController
 import com.rafael0112.asessment2.R
 import com.rafael0112.asessment2.model.MyDiary
 import com.rafael0112.asessment2.navigation.Screen
-import com.rafael0112.asessment2.ui.theme.Mobpro1Theme
+import com.rafael0112.asessment2.ui.theme.Asessment2Theme
 import com.rafael0112.asessment2.util.SettingsDataStore
 import com.rafael0112.asessment2.util.ViewModelFactory
 import kotlinx.coroutines.CoroutineScope
@@ -139,7 +139,7 @@ fun ScreenContent(showList: Boolean, modifier: Modifier = Modifier, navControlle
                 contentPadding = PaddingValues(bottom = 84.dp)
             ) {
                 items(data) {
-                    ListItem(catatan = it) {
+                    ListItem(myDiary = it) {
                         navController.navigate(Screen.FormUbah.withId(it.id))
                     }
                     HorizontalDivider()
@@ -155,7 +155,7 @@ fun ScreenContent(showList: Boolean, modifier: Modifier = Modifier, navControlle
                 contentPadding = PaddingValues(8.dp, 8.dp, 8.dp, 84.dp)
             ) {
                 items(data) {
-                    GridItem( catatan = it ) {
+                    GridItem( myDiary = it ) {
                         navController.navigate(Screen.FormUbah.withId(it.id))
                     }
                 }
@@ -165,23 +165,28 @@ fun ScreenContent(showList: Boolean, modifier: Modifier = Modifier, navControlle
 }
 
 @Composable
-fun ListItem(catatan: Catatan, onClick: () -> Unit) {
+fun ListItem(myDiary: MyDiary, onClick: () -> Unit) {
     Column(
         modifier = Modifier.fillMaxWidth().clickable { onClick() }.padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         Text(
-            text = catatan.judul,
+            text = myDiary.judul,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
             fontWeight = FontWeight.Bold
         )
         Text(
-            text = catatan.catatan,
+            text = stringResource(R.string.mood) + myDiary.mood,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+        )
+        Text(
+            text = myDiary.catatan,
             maxLines = 2,
             overflow = TextOverflow.Ellipsis
         )
-        Text(text = catatan.tanggal)
+        Text(text = myDiary.tanggal)
     }
 }
 
@@ -205,7 +210,7 @@ fun GridItem(myDiary: MyDiary, onClick: () -> Unit) {
                 fontWeight = FontWeight.Bold
             )
             Text(
-                text = "Hari Anda Pada Saat itu" + myDiary.mood,
+                text = stringResource(R.string.mood) + myDiary.mood,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
@@ -225,7 +230,7 @@ fun GridItem(myDiary: MyDiary, onClick: () -> Unit) {
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_YES, showBackground = true)
 @Composable
 fun GreetingPreview() {
-    Mobpro1Theme {
+    Asessment2Theme {
         MainScreen(rememberNavController())
     }
 }
