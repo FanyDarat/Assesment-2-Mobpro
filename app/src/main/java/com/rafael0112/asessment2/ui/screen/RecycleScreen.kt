@@ -1,7 +1,6 @@
 package com.rafael0112.asessment2.ui.screen
 
 import android.content.res.Configuration
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -11,14 +10,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
-import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
-import androidx.compose.foundation.lazy.staggeredgrid.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.DividerDefaults
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
@@ -32,10 +27,12 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -50,9 +47,6 @@ import com.rafael0112.asessment2.navigation.Screen
 import com.rafael0112.asessment2.ui.theme.Asessment2Theme
 import com.rafael0112.asessment2.util.SettingsDataStore
 import com.rafael0112.asessment2.util.ViewModelFactory
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -60,52 +54,45 @@ fun RecycleScreen(navController: NavHostController) {
     val dataStore = SettingsDataStore(LocalContext.current)
     val showList by dataStore.layoutFlow.collectAsState(true)
 
+    val context = LocalContext.current
+    val factory = ViewModelFactory(context)
+    val viewModel: DetailViewModel = viewModel(factory = factory)
+
+    var showDialog by remember { mutableStateOf(false) }
+
     Scaffold(
         topBar = {
             TopAppBar(
+                navigationIcon = {
+                    IconButton(onClick = {
+                        navController.popBackStack()
+                    }) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = stringResource(R.string.kembali),
+                            tint = MaterialTheme.colorScheme.primary
+
+                        )
+                    }
+                },
                 title = {
-                    Text(text = stringResource(id = R.string.app_name))
+                    Text(text = stringResource(id = R.string.halaman_recycle))
                 },
                 colors = TopAppBarDefaults.mediumTopAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primaryContainer,
                     titleContentColor = MaterialTheme.colorScheme.primary
-                ),
-                actions = {
-                    IconButton(onClick = {
-                        CoroutineScope(Dispatchers.IO).launch {
-                            dataStore.saveLayout(!showList)
-                        }
-                    }) {
-                        Icon(
-                            painter = painterResource(
-                                if (showList) {
-                                    R.drawable.baseline_grid_view_24
-                                } else {
-                                    R.drawable.baseline_view_list_24
-                                }
-                            ),
-                            contentDescription = stringResource(
-                                if (showList) {
-                                    R.string.grid
-                                } else {
-                                    R.string.list
-                                }
-                            ),
-                            tint = MaterialTheme.colorScheme.primary
-                        )
-                    }
-                }
+                )
             )
         },
         floatingActionButton = {
             FloatingActionButton(
                 onClick = {
-                    navController.navigate(Screen.FormBaru.route)
+                    showDialog = true
                 }
             ) {
                 Icon(
-                    imageVector = Icons.Filled.Add,
-                    contentDescription = stringResource(R.string.tambah_catatan),
+                    imageVector = Icons.Filled.Delete,
+                    contentDescription = stringResource(R.string.delete_all),
                     tint = MaterialTheme.colorScheme.primary
                 )
             }
@@ -113,14 +100,23 @@ fun RecycleScreen(navController: NavHostController) {
     ) { innerPadding ->
         RecycleContent(showList, Modifier.padding(innerPadding), navController)
     }
+    if (showDialog) {
+        DisplayAlertDialog(
+            onDismissRequest = { showDialog = false }
+        ) {
+            showDialog = false
+            viewModel.deleteAll()
+            navController.popBackStack()
+        }
+    }
 }
 
 @Composable
 fun RecycleContent(showList: Boolean, modifier: Modifier = Modifier, navController: NavHostController) {
     val context = LocalContext.current
     val factory = ViewModelFactory(context)
-    val viewModel: RecycleViewModel = viewModel(factory = factory)
-    val data by viewModel.data.collectAsState()
+    val viewModel: MainViewModel = viewModel(factory = factory)
+    val data by viewModel.dataRecycle.collectAsState()
 
     if (data.isEmpty()) {
         Column(
@@ -130,7 +126,7 @@ fun RecycleContent(showList: Boolean, modifier: Modifier = Modifier, navControll
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(text = stringResource(id = R.string.list_kosong))
+            Text(text = stringResource(id = R.string.recycle_kosong))
         }
     }
     else {
@@ -144,21 +140,6 @@ fun RecycleContent(showList: Boolean, modifier: Modifier = Modifier, navControll
                         navController.navigate(Screen.FormUbah.withId(it.id))
                     }
                     HorizontalDivider()
-                }
-            }
-        }
-        else {
-            LazyVerticalStaggeredGrid(
-                modifier = modifier.fillMaxSize(),
-                columns = StaggeredGridCells.Fixed(2),
-                verticalItemSpacing = 8.dp,
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                contentPadding = PaddingValues(8.dp, 8.dp, 8.dp, 84.dp)
-            ) {
-                items(data) {
-                    RecycleGridItem( myDiary = it ) {
-                        navController.navigate(Screen.FormUbah.withId(it.id))
-                    }
                 }
             }
         }
@@ -188,42 +169,6 @@ fun RecycleListItem(myDiary: MyDiary, onClick: () -> Unit) {
             overflow = TextOverflow.Ellipsis
         )
         Text(text = myDiary.tanggal)
-    }
-}
-
-@Composable
-fun RecycleGridItem(myDiary: MyDiary, onClick: () -> Unit) {
-    Card(
-        modifier = Modifier.fillMaxWidth().clickable { onClick() },
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface,
-        ),
-        border = BorderStroke(1.dp, DividerDefaults.color)
-    ) {
-        Column(
-            modifier = Modifier.padding(8.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-        ) {
-            Text(
-                text = myDiary.hari,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                fontWeight = FontWeight.Bold
-            )
-            Text(
-                text = stringResource(R.string.mood, myDiary.mood),
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
-            Text(
-                text = myDiary.catatan,
-                maxLines = 4,
-                overflow = TextOverflow.Ellipsis
-            )
-            Text(
-                text = myDiary.tanggal
-            )
-        }
     }
 }
 

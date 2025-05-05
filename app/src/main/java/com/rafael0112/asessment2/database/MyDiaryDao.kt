@@ -33,5 +33,5 @@ interface MyDiaryDao {
     suspend fun softDeleteById(id: Long)
 
     @Query("DELETE FROM myDiary WHERE visible = 0")
-    suspend fun deleteAll(): Flow<List<MyDiary>>
+    suspend fun deleteAll()
 }

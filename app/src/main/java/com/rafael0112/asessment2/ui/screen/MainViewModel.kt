@@ -15,4 +15,10 @@ class MainViewModel(dao: MyDiaryDao) : ViewModel() {
         started = SharingStarted.WhileSubscribed(),
         initialValue = emptyList()
     )
+
+    val dataRecycle: StateFlow<List<MyDiary>> = dao.getRecycleBin().stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(),
+        initialValue = emptyList()
+    )
 }

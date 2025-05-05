@@ -18,4 +18,7 @@
     <string name="pesan_hapus">Did you want delete your diary?</string>
     <string name="tombol_hapus">Delete</string>
     <string name="tombol_batal">Cancel</string>
+    <string name="recycle_kosong">Recycle Bin is Empty</string>
+    <string name="halaman_recycle">RecycleBin</string>
+    <string name="delete_all">Delete All</string>
 </resources>

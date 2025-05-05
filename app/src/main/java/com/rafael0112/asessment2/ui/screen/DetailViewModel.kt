@@ -51,4 +51,11 @@ class DetailViewModel(private val dao: MyDiaryDao): ViewModel() {
             dao.softDeleteById(id)
         }
     }
+
+    fun deleteAll() {
+        viewModelScope.launch(Dispatchers.IO) {
+            dao.deleteAll()
+        }
+    }
+
 }
