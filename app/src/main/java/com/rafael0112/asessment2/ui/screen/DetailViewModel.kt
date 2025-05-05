@@ -2,6 +2,7 @@ package com.rafael0112.asessment2.ui.screen
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.rafael0112.asessment2.R
 import com.rafael0112.asessment2.database.MyDiaryDao
 import com.rafael0112.asessment2.model.MyDiary
 import kotlinx.coroutines.Dispatchers
@@ -13,11 +14,12 @@ import java.util.Locale
 class DetailViewModel(private val dao: MyDiaryDao): ViewModel() {
 
     private val formatter = SimpleDateFormat("yyyy-MM-dd", Locale.US)
+    private val dayFormatter = SimpleDateFormat("EEEE, dd MMMM yyyy", Locale("in", R.string.bahasa.toString()))
 
-    fun insert(judul:String, isi: String, mood: String) {
+    fun insert(isi: String, mood: String) {
         val catatan = MyDiary(
             tanggal = formatter.format(Date()),
-            judul = judul,
+            hari = dayFormatter.format(Date()),
             catatan = isi,
             mood = mood
         )
@@ -31,12 +33,12 @@ class DetailViewModel(private val dao: MyDiaryDao): ViewModel() {
         return dao.getDiaryById(id)
     }
 
-    fun update(id: Long, judul: String, isi: String, mood: String) {
+    fun update(id: Long, isi: String, mood: String) {
         val catatan = MyDiary(
             id = id,
             tanggal = formatter.format(Date()),
+            hari = dayFormatter.format(Date()),
             mood = mood,
-            judul = judul,
             catatan = isi
         )
         viewModelScope.launch(Dispatchers.IO) {

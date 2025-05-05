@@ -51,16 +51,16 @@ fun DetailScreen(navController: NavHostController, id: Long? = null) {
     val context = LocalContext.current
     val factory = ViewModelFactory(context)
     val viewModel: DetailViewModel = viewModel(factory = factory)
-
-    var judul by remember { mutableStateOf("") }
+    
     var catatan by remember { mutableStateOf("") }
+    var mood by remember { mutableStateOf("") }
     var showDialog by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         if (id == null) return@LaunchedEffect
         val data = viewModel.getDiary(id) ?: return@LaunchedEffect
-        judul = data.judul
         catatan = data.catatan
+        mood = data.mood
     }
 
     Scaffold(
@@ -88,14 +88,14 @@ fun DetailScreen(navController: NavHostController, id: Long? = null) {
                 ),
                 actions = {
                     IconButton(onClick = {
-                        if (judul == "" || catatan == "") {
+                        if (catatan == "" || mood == "") {
                             Toast.makeText(context, R.string.invalid, Toast.LENGTH_LONG).show()
                             return@IconButton
                         }
                         if (id == null) {
-                            viewModel.insert(judul, catatan)
+                            viewModel.insert(catatan, mood)
                         } else {
-                            viewModel.update(id, judul, catatan)
+                            viewModel.update(id, catatan, mood)
                         }
                         navController.popBackStack()
                     }) {
@@ -115,8 +115,8 @@ fun DetailScreen(navController: NavHostController, id: Long? = null) {
         }
     ) { padding ->
         FormCatatan(
-            title = judul,
-            onTitleChange = { judul = it },
+            title = mood,
+            onTitleChange = { mood = it },
             desc = catatan,
             onDescChange = { catatan = it },
             modifier = Modifier.padding(padding)

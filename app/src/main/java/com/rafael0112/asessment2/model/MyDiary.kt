@@ -8,7 +8,7 @@ data class MyDiary(
     @PrimaryKey(autoGenerate  = true)
     val id : Long = 0L,
     val mood: String,
-    val judul : String,
+    val hari : String,
     val catatan : String,
     val tanggal : String,
     val visible : Boolean = true
