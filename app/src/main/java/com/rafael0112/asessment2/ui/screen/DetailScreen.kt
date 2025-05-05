@@ -32,6 +32,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.tooling.preview.Preview
@@ -54,6 +55,8 @@ fun DetailScreen(navController: NavHostController, id: Long? = null) {
     
     var catatan by remember { mutableStateOf("") }
     var mood by remember { mutableStateOf("") }
+    var hari by remember { mutableStateOf("") }
+    var visible by remember { mutableStateOf(false) }
     var showDialog by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
@@ -61,6 +64,8 @@ fun DetailScreen(navController: NavHostController, id: Long? = null) {
         val data = viewModel.getDiary(id) ?: return@LaunchedEffect
         catatan = data.catatan
         mood = data.mood
+        hari = data.hari
+        visible = data.visible
     }
 
     Scaffold(
@@ -79,7 +84,11 @@ fun DetailScreen(navController: NavHostController, id: Long? = null) {
                     if (id == null) {
                         Text(text = stringResource(id = R.string.tambah_catatan))
                     } else {
-                        Text(text = stringResource(id = R.string.edit_catatan))
+                        if (visible) {
+                            Text(text = stringResource(id = R.string.edit_catatan))
+                        } else {
+                            Text(text = stringResource(id = R.string.diary))
+                        }
                     }
                 },
                 colors = TopAppBarDefaults.mediumTopAppBarColors(
@@ -87,27 +96,40 @@ fun DetailScreen(navController: NavHostController, id: Long? = null) {
                     titleContentColor = MaterialTheme.colorScheme.primary
                 ),
                 actions = {
-                    IconButton(onClick = {
-                        if (catatan == "" || mood == "") {
-                            Toast.makeText(context, R.string.invalid, Toast.LENGTH_LONG).show()
-                            return@IconButton
+                    if (visible) {
+                        IconButton(onClick = {
+                            if (catatan == "" || mood == "") {
+                                Toast.makeText(context, R.string.invalid, Toast.LENGTH_LONG).show()
+                                return@IconButton
+                            }
+                            if (id == null) {
+                                viewModel.insert(catatan, mood)
+                            } else {
+                                viewModel.update(id, catatan, mood)
+                            }
+                            navController.popBackStack()
+                        }) {
+                            Icon(
+                                imageVector = Icons.Outlined.Check,
+                                contentDescription = stringResource(R.string.simpan),
+                                tint = MaterialTheme.colorScheme.primary
+                            )
                         }
-                        if (id == null) {
-                            viewModel.insert(catatan, mood)
-                        } else {
-                            viewModel.update(id, catatan, mood)
+                        if (id != null) {
+                            DeleteAction {
+                                showDialog = true
+                            }
                         }
-                        navController.popBackStack()
-                    }) {
-                        Icon(
-                            imageVector = Icons.Outlined.Check,
-                            contentDescription = stringResource(R.string.simpan),
-                            tint = MaterialTheme.colorScheme.primary
-                        )
-                    }
-                    if (id != null) {
-                        DeleteAction {
-                            showDialog = true
+                    } else {
+                        if (id != null) {
+                            RecycleAction(
+                                {
+                                    showDialog = true
+                                }, {
+                                    viewModel.restore(id)
+                                    navController.popBackStack()
+                                }
+                            )
                         }
                     }
                 }
@@ -115,28 +137,42 @@ fun DetailScreen(navController: NavHostController, id: Long? = null) {
         }
     ) { padding ->
         FormCatatan(
-            title = mood,
+            hari = hari,
+            mood = mood,
             onTitleChange = { mood = it },
             desc = catatan,
             onDescChange = { catatan = it },
+            visible = visible,
             modifier = Modifier.padding(padding)
         )
         if (id != null && showDialog) {
             DisplayAlertDialogRecycle(
-                onDismissRequest = { showDialog = false }
-            ) {
-                showDialog = false
-                viewModel.delete(id)
-                navController.popBackStack()
-            }
+                message = if (visible) {
+                    stringResource(R.string.pesan_recycle)
+                } else {
+                    stringResource(R.string.pesan_hapus)
+                },
+                onDismissRequest = { showDialog = false },
+                onConfirmation = {
+                    showDialog = false
+                    if (visible) {
+                        viewModel.delete(id)
+                    } else {
+                        viewModel.permDelete(id)
+                    }
+                    navController.popBackStack()
+                }
+            )
         }
     }
 }
 
 @Composable
 fun FormCatatan(
-    title: String, onTitleChange: (String) -> Unit,
+    mood: String, onTitleChange: (String) -> Unit,
     desc: String, onDescChange: (String) -> Unit,
+    hari: String,
+    visible: Boolean,
     modifier: Modifier
 ) {
     Column(
@@ -145,11 +181,15 @@ fun FormCatatan(
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
+        Text(
+            text = hari
+        )
         OutlinedTextField(
-            value = title,
+            value = mood,
             onValueChange = { onTitleChange(it) },
             label = { Text(text = stringResource(R.string.judul)) },
             singleLine = true,
+            readOnly = !visible,
             keyboardOptions = KeyboardOptions(
                 capitalization = KeyboardCapitalization.Words,
                 imeAction = ImeAction.Next
@@ -158,6 +198,7 @@ fun FormCatatan(
         )
         OutlinedTextField(
             value = desc,
+            readOnly = !visible,
             onValueChange = { onDescChange(it) },
             label = { Text(text = stringResource(R.string.isi_catatan)) },
             keyboardOptions = KeyboardOptions(
@@ -188,6 +229,41 @@ fun DeleteAction(delete: () -> Unit) {
                 onClick = {
                     expanded = false
                     delete()
+                }
+            )
+        }
+    }
+}
+
+@Composable
+fun RecycleAction(permDelete: () -> Unit, restore: () -> Unit) {
+    var expanded by remember { mutableStateOf(false) }
+    IconButton(onClick = { expanded = true }) {
+        Icon(
+            imageVector = Icons.Filled.MoreVert,
+            contentDescription = stringResource(R.string.lainnya),
+            tint = MaterialTheme.colorScheme.primary
+        )
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false}
+        ) {
+            DropdownMenuItem(
+                text = {
+                    Text(text = stringResource(id = R.string.hapus_permanen))
+                },
+                onClick = {
+                    expanded = false
+                    permDelete()
+                }
+            )
+            DropdownMenuItem(
+                text = {
+                    Text(text = stringResource(id = R.string.restore))
+                },
+                onClick = {
+                    expanded = false
+                    restore()
                 }
             )
         }

@@ -32,6 +32,9 @@ interface MyDiaryDao {
     @Query("UPDATE myDiary SET visible = 0 WHERE id = :id")
     suspend fun softDeleteById(id: Long)
 
+    @Query("UPDATE myDiary SET visible = 1 WHERE id = :id")
+    suspend fun restoreById(id: Long)
+
     @Query("DELETE FROM myDiary WHERE visible = 0")
     suspend fun deleteAll()
 }

@@ -34,10 +34,11 @@ fun DisplayAlertDialog(
 @Composable
 fun DisplayAlertDialogRecycle(
     onDismissRequest: () -> Unit,
-    onConfirmation: () -> Unit
+    onConfirmation: () -> Unit,
+    message: String
 ) {
     AlertDialog(
-        text = { Text(text = stringResource(R.string.pesan_recycle)) },
+        text = { Text(text = message) },
         confirmButton = {
             TextButton(onClick = { onConfirmation() }) {
                 Text(text = stringResource(R.string.tombol_konfirmasi))

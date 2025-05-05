@@ -23,5 +23,8 @@
     <string name="delete_all">Delete All</string>
     <string name="pesan_recycle">Move it to Recycle Bin?</string>
     <string name="tombol_konfirmasi">Confirm</string>
+    <string name="diary">Diary</string>
+    <string name="hapus_permanen">Permanent Delete</string>
+    <string name="restore">Restore</string>
 
 </resources>

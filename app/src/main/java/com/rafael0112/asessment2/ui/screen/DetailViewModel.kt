@@ -52,6 +52,18 @@ class DetailViewModel(private val dao: MyDiaryDao): ViewModel() {
         }
     }
 
+    fun permDelete(id: Long) {
+        viewModelScope.launch(Dispatchers.IO) {
+            dao.deleteById(id)
+        }
+    }
+
+    fun restore(id: Long) {
+        viewModelScope.launch(Dispatchers.IO) {
+            dao.restoreById(id)
+        }
+    }
+
     fun deleteAll() {
         viewModelScope.launch(Dispatchers.IO) {
             dao.deleteAll()
