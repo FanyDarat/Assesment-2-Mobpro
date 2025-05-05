@@ -21,4 +21,7 @@
     <string name="recycle_kosong">Recycle Bin is Empty</string>
     <string name="halaman_recycle">RecycleBin</string>
     <string name="delete_all">Delete All</string>
+    <string name="pesan_recycle">Move it to Recycle Bin?</string>
+    <string name="tombol_konfirmasi">Confirm</string>
+
 </resources>

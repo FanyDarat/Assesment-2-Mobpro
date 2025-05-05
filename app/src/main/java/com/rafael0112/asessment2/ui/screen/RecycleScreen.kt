@@ -106,7 +106,6 @@ fun RecycleScreen(navController: NavHostController) {
         ) {
             showDialog = false
             viewModel.deleteAll()
-            navController.popBackStack()
         }
     }
 }

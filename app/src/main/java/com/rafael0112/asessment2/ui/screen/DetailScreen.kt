@@ -122,7 +122,7 @@ fun DetailScreen(navController: NavHostController, id: Long? = null) {
             modifier = Modifier.padding(padding)
         )
         if (id != null && showDialog) {
-            DisplayAlertDialog(
+            DisplayAlertDialogRecycle(
                 onDismissRequest = { showDialog = false }
             ) {
                 showDialog = false
