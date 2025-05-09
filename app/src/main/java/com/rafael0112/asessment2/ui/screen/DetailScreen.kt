@@ -81,6 +81,7 @@ fun DetailScreen(navController: NavHostController, id: Long? = null) {
                 },
                 title = {
                     if (id == null) {
+                        visible = true
                         Text(text = stringResource(id = R.string.tambah_catatan))
                     } else {
                         if (visible) {
